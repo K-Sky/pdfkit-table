@@ -12,9 +12,6 @@ fns.column = function(options, x, y, height, lineWidth, opacity, color) {
 	let dividerOptions = this._dividers._parseDividerOptions(options.divider.vertical, opacity, lineWidth, color)
 	if (!dividerOptions) return;
 	({ opacity, lineWidth, color } = dividerOptions)
-	console.log('x', x)
-	console.log('y', y)
-	console.log('height', height)
 	this.save()
 	this
 		.moveTo(x, y)

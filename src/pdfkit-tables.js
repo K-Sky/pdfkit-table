@@ -94,61 +94,7 @@ class PDFDocumentWithTables extends PDFDocument {
 				// warning - eval can be harmful
 				const fEval = (str) => {
 					let f = null; eval('f = ' + str); return f;
-				};
-
-				// padding: [10, 10, 10, 10]
-				// padding: [10, 10]
-				// padding: {top: 10, right: 10, bottom: 10, left: 10}
-				// padding: 10,
-				const prepareCellPadding = (p) => {
-
-					// array
-					if(Array.isArray(p)){
-						switch(p.length){
-							case 3: p = [...p, 0]; break;
-							case 2: p = [...p, ...p]; break;
-							case 1: p = Array(4).fill(p[0]); break;
-						}
-					}
-					// number
-					else if(typeof p === 'number'){
-						p = Array(4).fill(p);
-					}
-					// object
-					else if(typeof p === 'object'){
-						const {top, right, bottom, left} = p;
-						p = [top, right, bottom, left];
-					} 
-					// null
-					else {
-						p = Array(4).fill(0);
-					}
-
-					return {
-						top:    p[0] >> 0, // int
-						right:  p[1] >> 0, 
-						bottom: p[2] >> 0, 
-						left:   p[3] >> 0,
-					};
-
-				};
-
-				const prepareRowOptions = (row) => {
-
-					// validate
-					if( typeof row !== 'object' || !row.hasOwnProperty('options') ) return; 
-
-					const {fontFamily, fontSize, color} = row.options;
-
-					fontFamily && this.font(fontFamily); 
-					fontSize && this.fontSize(fontSize); 
-					color && this.fillColor(color); 
-
-					// row.options.hasOwnProperty('fontFamily') && this.font(row.options.fontFamily); 
-					// row.options.hasOwnProperty('fontSize') && this.fontSize(row.options.fontSize); 
-					// row.options.hasOwnProperty('color') && this.fillColor(row.options.color); 
-
-				};
+				}
 
 				const prepareRowBackground = (row, rect) => {
 
@@ -211,13 +157,13 @@ class PDFDocumentWithTables extends PDFDocument {
 							// define label
 							text = String(cell.label);
 							// apply font size on calc about height row 
-							cell.hasOwnProperty('options') && prepareRowOptions(cell);
+							cell.hasOwnProperty('options') && this._helpers.prepareRowOptions(cell);
 						}
 
 						text = String(text).replace('bold:','').replace('size','');
 
 						// cell padding
-						cellp = prepareCellPadding(table.headers[i].padding || options.padding || 0);
+						cellp = this._helpers.prepareCellPadding(table.headers[i].padding || options.padding || 0);
 						// cellp = prepareCellPadding(options.padding || 0);
 						//  - (cellp.left + cellp.right + (columnSpacing * 2))
 						// console.log(cellp);
@@ -421,7 +367,7 @@ class PDFDocumentWithTables extends PDFDocument {
 							this.addBackground(rectCell, headerColor, headerOpacity);
 
 							// cell padding
-							cellPadding = prepareCellPadding(padding || options.padding || 0);
+							cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0);
 
 							// align vertically
 							let topTextToAlignVertically = this._helpers.calcTopTextToAlignVertically.bind(this)(label, width, cellPadding, align, valign, this._rowDistance, columnSpacing, rectCell);
@@ -442,7 +388,7 @@ class PDFDocumentWithTables extends PDFDocument {
 					}
 
 					// set style
-					prepareRowOptions(table.headers);
+					this._helpers.prepareRowOptions(table.headers);
 
 					if(!options.hideHeader) {
 						// Refresh the y coordinate of the bottom of the headers row
@@ -505,7 +451,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						align = align || 'left';
 
 						// cell padding
-						cellPadding = prepareCellPadding(padding || options.padding || 0);
+						cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0);
 
 						const rectCell = {
 							x: lastPositionX,
@@ -515,7 +461,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						}
 
 						// allow the user to override style for rows
-						prepareRowOptions(row);
+						this._helpers.prepareRowOptions(row);
 						prepareRow(row, index, i, rectRow, rectCell,);
 
 						let text = row[property];
@@ -524,13 +470,13 @@ class PDFDocumentWithTables extends PDFDocument {
 						if(typeof text === 'object' ){
 
 							text = String(text.label); // get label
-							// row[property].hasOwnProperty('options') && prepareRowOptions(row[property]); // set style
+							// row[property].hasOwnProperty('options') && this._helpers.prepareRowOptions(row[property]); // set style
 
 							// options if text cell is object
 							if( row[property].hasOwnProperty('options') ){
 
 								// set font style
-								prepareRowOptions(row[property]);
+								this._helpers.prepareRowOptions(row[property]);
 								prepareRowBackground(row[property], rectCell);
 
 							}
@@ -577,7 +523,7 @@ class PDFDocumentWithTables extends PDFDocument {
 
 						// set style
 						// Maybe REMOVE ???
-						prepareRowOptions(row);
+						this._helpers.prepareRowOptions(row);
 						prepareRow(row, index, i, rectRow, rectCell);
 
 					});
@@ -667,7 +613,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						}
 
 						// cell padding
-						cellPadding = prepareCellPadding(table.headers[index].padding || options.padding || 0);
+						cellPadding = this._helpers.prepareCellPadding(table.headers[index].padding || options.padding || 0);
 
 						// align vertically
 						let topTextToAlignVertically = this._helpers.calcTopTextToAlignVertically.bind(this)(cell, cellPadding, columnSizes[index], align, valign, this._rowDistance, columnSpacing, rectCell);
