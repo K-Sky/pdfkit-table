@@ -1,3 +1,5 @@
+## Warning!!! This repository is an experimental fork. Use at your own risk!!!
+
 <p align="center">
   <br/>
   <br/>
@@ -240,6 +242,7 @@ npm install pdfkit-table
     - headerColor <code>String</code>
     - headerOpacity <code>Number</code>
     - headerAlign <code>String</code>
+    - headerValign <code>String</code>
     - columnColor or ~~backgroundColor~~: <code>String</code>
     - columnOpacity or ~~backgroundOpacity~~: <code>Number</code>
     - renderer <code>Function</code> function( value, indexColumn, indexRow, row, rectRow, rectCell ) { return value }
@@ -256,10 +259,11 @@ npm install pdfkit-table
 | **property**         | <code>String</code>   | undefined          | id                |
 | **width**            | <code>Number</code>   | undefined          | width of column   |
 | **align**            | <code>String</code>   | left               | alignment         |
-| **valign**           | <code>String</code>   | undefined          | vertical alignment. ex: valign: "center"|
+| **valign**           | <code>String</code>   | undefined          | vertical alignment. ( "top" | "center" | "middle" | "bottom" )|
 | **headerColor**      | <code>String</code>   | grey or #BEBEBE    | color of header   |
 | **headerOpacity**    | <code>Number</code>   | 0.5                | opacity of header |
-| **headerAlign**      | <code>String</code>   | left               | only header       |
+| **headerAlign**      | <code>String</code>   | left               | only header's horizontal alignment       |
+| **headerValign**     | <code>String</code>   | left               | only header's veritcal alignment       |
 | **columnColor** or ~~backgroundColor~~  | <code>String</code>   | undefined          | color of column   |
 | **columnOpacity** or ~~backgroundOpacity~~| <code>Number</code>   | undefined          | opacity of column   |
 | **renderer**         | <code>Function</code> | Function           | function( value, indexColumn, indexRow, row, rectRow, rectCell ) { return value } |
@@ -416,6 +420,15 @@ datas: [
 - margin: marginBottom before, marginTop after
 
 ## Changelogs
+
+### 0.1.100
+- Update README.md for the modifications that were made in 0.1.99.
+
+### 0.1.99
+- Total refactor of the whole project. Separate code into multiple files.
+- Add support for bottom vertical align. Change vertical align will default to top if not provided with the correct values.
+- Add support for headerValign to vertical align the header column only.
+- Add top divider and vertical divider to have better control of the border line for the project.
 
 ### 0.1.90
 
