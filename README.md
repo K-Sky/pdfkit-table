@@ -32,7 +32,7 @@ Helps to draw informations in simple tables using pdfkit. #server-side.
 [![NPM](https://nodei.co/npm/pdfkit-table.png)](https://www.npmjs.com/package/pdfkit-table)
 
 ```bash
-npm install pdfkit-table
+npm install @k-sky/pdfkit-table
 ```
 
 ## Use
@@ -422,6 +422,9 @@ datas: [
 - margin: marginBottom before, marginTop after
 
 ## Changelogs
+
+### 0.1.102
+- Update the npm install instruction to install this specific package instead.
 
 ### 0.1.101
 - Add reference to original repository. Update the source code, issue and bugs for npm package.
