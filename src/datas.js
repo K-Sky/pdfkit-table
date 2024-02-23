@@ -114,7 +114,7 @@ fns.single = function(headers, row, i) {
 		)
 
 		dataHeader.startX = rectCell.x
-		this._lastPositionX += width;
+		this._lastPositionX += width
 
 		// set style
 		// Maybe REMOVE ???

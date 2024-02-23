@@ -89,7 +89,7 @@ fns.add = function() {
 			align = headerAlign || align || 'left'
 			valign = headerValign || valign || 'top'
 			// force number
-			width = width >> 0
+			if (typeof width !== 'number') dataHeader.width = width = this._columnSizes[i]
 
 			// register renderer function
 			if (renderer && typeof renderer === 'string') {
