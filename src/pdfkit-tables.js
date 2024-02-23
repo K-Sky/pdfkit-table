@@ -29,6 +29,33 @@ class PDFDocumentWithTables extends PDFDocument {
 	}
 
 	/**
+	 * addBackground
+	 * @param {Object} rect
+	 * @param {String} fillColor 
+	 * @param {Number} fillOpacity 
+	 * @param {Function} callback 
+	 */
+	addBackground = function({x, y, width, height}, fillColor, fillOpacity, callback) {
+		// validate
+		fillColor || (fillColor = 'grey');
+		fillOpacity || (fillOpacity = 0.1);
+
+		this.save();
+
+		// draw bg
+		this
+			.fill(fillColor)
+		//.stroke(fillColor)
+			.fillOpacity(fillOpacity)
+			.rect( x, y, width, height )
+		//.stroke()
+			.fill();
+
+		this.restore();
+		typeof callback === 'function' && callback(this);
+	}
+
+	/**
 	 * table
 	 * @param {Object} table 
 	 * @param {Object} options 

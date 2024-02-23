@@ -423,6 +423,9 @@ datas: [
 
 ## Changelogs
 
+### 0.1.106
+- Change add background back to public methods as that would potentially break other code that uses the function.
+
 ### 0.1.105
 - Add align property for title and subtitle styling.
 - Fix the vertical divider was missing the row distance variable and therefore has a small misalignment problem.

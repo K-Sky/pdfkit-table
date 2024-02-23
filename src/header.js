@@ -124,7 +124,7 @@ fns.add = function() {
 			dataHeader.startX = rectCell.x
 
 			// add background
-			this._helpers.addBackground(rectCell, headerColor, headerOpacity)
+			this.addBackground(rectCell, headerColor, headerOpacity)
 
 			// cell padding
 			this._cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0)
