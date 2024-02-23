@@ -11,6 +11,7 @@ const title = require("./title.js")
 const header = require("./header.js")
 const datas = require("./datas.js")
 const rows = require("./rows.js")
+const renderer = require("./renderer.js")
 
 class PDFDocumentWithTables extends PDFDocument {
 	constructor(option) {
@@ -24,6 +25,7 @@ class PDFDocumentWithTables extends PDFDocument {
 		this._header = helpers.registerFns.bind(this)(header)
 		this._datas = helpers.registerFns.bind(this)(datas)
 		this._rows = helpers.registerFns.bind(this)(rows)
+		this._renderer = helpers.registerFns.bind(this)(renderer)
 	}
 
 	/**
@@ -60,10 +62,7 @@ class PDFDocumentWithTables extends PDFDocument {
 				// update position
 				this.x = this._startX
 				this.y = this._rowBottomY; // position y final
-				table.headers.forEach((dataHeader) => {
-					this._dividers.column(options, dataHeader.startX, this._originalStartY, this.y - this._originalStartY)
-				})
-				this._dividers.column(options, this._tableWidth, this._originalStartY, this.y - this._originalStartY)
+				this._renderer.verticalDividers()
 				this.moveDown() // break
 
 				// add fire

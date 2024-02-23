@@ -128,12 +128,7 @@ fns.prepareRowOptions = function(row) {
 }
 
 fns.onFirePageAdded = function() {
-	let { table, options } = this
-	let { _originalStartY, y, _tableWidth } = this
-	table.headers.forEach((dataHeader) => {
-		this._dividers.column(options, dataHeader.startX, _originalStartY, y - _originalStartY)
-	})
-	this._dividers.column(options, _tableWidth, _originalStartY, y - _originalStartY)
+	this._renderer.verticalDividers()
 	//startX = this.page.margins.left;
 	this._startY = this.page.margins.top
 	this._rowBottomY = 0
