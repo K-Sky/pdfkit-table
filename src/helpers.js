@@ -18,6 +18,66 @@ fns.logg = (() =>
 	: function() {}
 )()
 
+/**
+	 * addBackground
+	 * @param {Object} rect
+	 * @param {String} fillColor 
+	 * @param {Number} fillOpacity 
+	 * @param {Function} callback 
+	 */
+fns.addBackground = function({x, y, width, height}, fillColor, fillOpacity, callback) {
+	// validate
+	fillColor || (fillColor = 'grey');
+	fillOpacity || (fillOpacity = 0.1);
+
+	this.save();
+
+	// draw bg
+	this
+		.fill(fillColor)
+	//.stroke(fillColor)
+		.fillOpacity(fillOpacity)
+		.rect( x, y, width, height )
+	//.stroke()
+		.fill();
+
+	this.restore();
+	typeof callback === 'function' && callback(this);
+}
+
+fns.prepareRowBackground = function(row, rect) {
+	// validate
+	if(typeof row !== 'object') return
+
+	// options
+	row.options && (row = row.options)
+
+	let { fill, opac } = {}
+
+	// add backgroundColor
+	if (row.hasOwnProperty('columnColor')) { // ^0.1.70
+
+		const { columnColor, columnOpacity } = row
+		fill = columnColor;
+		opac = columnOpacity
+
+	} else if (row.hasOwnProperty('backgroundColor')) { // ~0.1.65 old
+
+		const { backgroundColor, backgroundOpacity } = row
+		fill = backgroundColor
+		opac = backgroundOpacity
+
+	} else if (row.hasOwnProperty('background')) { // dont remove
+		if (typeof row.background === 'object') {
+			let { color, opacity } = row.background
+			fill = color
+			opac = opacity
+		}
+	}
+
+	fill && this._helpers.addBackground(rect, fill, opac)
+}
+
 // padding: [10, 10, 10, 10]
 // padding: [10, 10]
 // padding: {top: 10, right: 10, bottom: 10, left: 10}
@@ -65,25 +125,6 @@ fns.prepareRowOptions = function(row) {
 	// row.options.hasOwnProperty('fontFamily') && this.font(row.options.fontFamily)
 	// row.options.hasOwnProperty('fontSize') && this.fontSize(row.options.fontSize)
 	// row.options.hasOwnProperty('color') && this.fillColor(row.options.color)
-}
-
-fns.calcTopTextToAlignVertically = function(text, width, cellPadding, align, valign, rowDistance, columnSpacing, rectCell) {
-	if (!valign || valign === 'top') return 0
-	let topTextToAlignVertically = 0
-	const heightText = this.heightOfString(text, {
-		width: width - (cellPadding.left + cellPadding.right),
-		align: align,
-	})
-	switch (valign) {
-		case 'center':
-		case 'middle':
-			topTextToAlignVertically = rowDistance - columnSpacing + (rectCell.height - heightText) / 2
-			break
-		case 'bottom':
-			topTextToAlignVertically = rowDistance - columnSpacing + rectCell.height - heightText
-			break
-	}
-	return topTextToAlignVertically
 }
 
 module.exports = fns

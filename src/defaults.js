@@ -21,15 +21,18 @@ fns.parse = function(table, options) {
 	this._helpers.logg('margins', this.page.margins)
 	this._helpers.logg('options', this.options)
 
+	this.table = table
+	this.options = options
+
 	return { table, options, title, subtitle }
 }
 
 fns.values = function(options) {
 	// const columnIsDefined  = options.columnsSize.length ? true : false;
-	const columnSpacing    = options.columnSpacing || 3 // 15
-	let columnSizes      = []
-	let columnPositions  = [] // 0, 10, 20, 30, 100
-	let columnWidth      = 0
+	this._columnSpacing    = options.columnSpacing || 3 // 15
+	this._columnSizes      = []
+	this._columnPositions  = [] // 0, 10, 20, 30, 100
+	this._columnWidth      = 0
 
 	this._rowDistance      = 0.5;
 	let cellPadding      = { top: 0, right: 0, bottom: 0, left: 0 } // universal
@@ -63,7 +66,6 @@ fns.values = function(options) {
 		startX = this.page.margins.left;
 	}
 	return {
-		columnSpacing, columnSizes, columnPositions, columnWidth,
 		cellPadding, prepareHeader, prepareRow, maxY, startX, startY,
 		lastPositionX, rowBottomY, titleHeight, firstLineHeight, lockAddTitles,
 		lockAddPage, lockAddHeader, safelyMarginBottom

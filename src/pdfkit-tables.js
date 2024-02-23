@@ -7,6 +7,7 @@ const helpers = require("./helpers.js")
 const defaults = require("./defaults.js")
 const title = require("./title.js")
 const dividers = require("./dividers.js")
+const calc = require("./compute.js")
 
 class PDFDocumentWithTables extends PDFDocument {
 	constructor(option) {
@@ -16,33 +17,7 @@ class PDFDocumentWithTables extends PDFDocument {
 		this._defaults = helpers.registerFns.bind(this)(defaults)
 		this._title = helpers.registerFns.bind(this)(title)
 		this._dividers = helpers.registerFns.bind(this)(dividers)
-	}
-
-	/**
-	 * addBackground
-	 * @param {Object} rect
-	 * @param {String} fillColor 
-	 * @param {Number} fillOpacity 
-	 * @param {Function} callback 
-	 */
-	addBackground ({x, y, width, height}, fillColor, fillOpacity, callback) {
-		// validate
-		fillColor || (fillColor = 'grey');
-		fillOpacity || (fillOpacity = 0.1);
-	
-		this.save();
-
-		// draw bg
-		this
-			.fill(fillColor)
-		//.stroke(fillColor)
-			.fillOpacity(fillOpacity)
-			.rect( x, y, width, height )
-		//.stroke()
-			.fill();
-
-		this.restore();
-		typeof callback === 'function' && callback(this);
+		this._compute = helpers.registerFns.bind(this)(calc)
 	}
 
 	/**
@@ -57,8 +32,8 @@ class PDFDocumentWithTables extends PDFDocument {
 				let title, subtitle
 				({ table, options, title, subtitle } = this._defaults.parse(table, options))
 				let {
-					columnSpacing, columnSizes, columnPositions, columnWidth,
-					cellPadding, prepareHeader, prepareRow, maxY, startX, startY,
+					cellPadding, prepareHeader, prepareRow,
+					maxY, startX, startY,
 					lastPositionX, rowBottomY, titleHeight, firstLineHeight, lockAddTitles,
 					lockAddPage, lockAddHeader, safelyMarginBottom
 				} = this._defaults.values(options)
@@ -96,151 +71,7 @@ class PDFDocumentWithTables extends PDFDocument {
 					let f = null; eval('f = ' + str); return f;
 				}
 
-				const prepareRowBackground = (row, rect) => {
-
-					// validate
-					if(typeof row !== 'object') return;
-
-					// options
-					row.options && (row = row.options);
-
-					let { fill, opac } = {};
-
-					// add backgroundColor
-					if(row.hasOwnProperty('columnColor')){ // ^0.1.70
-
-						const { columnColor, columnOpacity } = row;
-						fill = columnColor; 
-						opac = columnOpacity;
-
-					} else if(row.hasOwnProperty('backgroundColor')){ // ~0.1.65 old
-
-						const { backgroundColor, backgroundOpacity } = row;
-						fill = backgroundColor; 
-						opac = backgroundOpacity;
-
-					} else if(row.hasOwnProperty('background')){ // dont remove
-
-						if(typeof row.background === 'object'){
-							let { color, opacity } = row.background;
-							fill = color; 
-							opac = opacity;
-						}
-
-					}
-
-					fill && this.addBackground(rect, fill, opac);
-
-				};
-
-				const computeRowHeight = (row, isHeader) => {
-
-					let result = isHeader ? 0 : (options.minRowHeight || 0);
-					let cellp;
-
-					// if row is object, content with property and options
-					if(!Array.isArray(row) && typeof row === 'object' && !row.hasOwnProperty('property')){
-						const cells = []; 
-						// get all properties names on header
-						table.headers.forEach(({property}) => cells.push(row[property]) );
-						// define row with properties header
-						row = cells;  
-					}
-
-					row.forEach((cell,i) => {
-
-						let text = cell;
-
-						// object
-						// read cell and get label of object
-						if( typeof cell === 'object' ){
-							// define label
-							text = String(cell.label);
-							// apply font size on calc about height row 
-							cell.hasOwnProperty('options') && this._helpers.prepareRowOptions(cell);
-						}
-
-						text = String(text).replace('bold:','').replace('size','');
-
-						// cell padding
-						cellp = this._helpers.prepareCellPadding(table.headers[i].padding || options.padding || 0);
-						// cellp = prepareCellPadding(options.padding || 0);
-						//  - (cellp.left + cellp.right + (columnSpacing * 2))
-						// console.log(cellp);
-
-						// calc height size of string
-						const cellHeight = this.heightOfString(text, {
-							width: columnSizes[i] - (cellp.left + cellp.right),
-							align: 'left',
-						});
-
-						result = Math.max(result, cellHeight);    
-					});
-
-					// isHeader && (result = Math.max(result, options.minRowHeight));
-
-					// if(result + columnSpacing === 0) {
-					//   computeRowHeight(row);
-					// }
-
-					return result + (columnSpacing);
-				};
-
-				// Calc columns size
-
-				const calcColumnSizes = () => {
-
-					let h = []; // header width
-					let p = []; // position
-					let w = 0;  // table width
-
-					// (table width) 1o - Max size table
-					w = this.page.width - this.page.margins.right - ( options.x || this.page.margins.left );
-					// (table width) 2o - Size defined
-					options.width && ( w = parseInt(options.width) || String(options.width).replace(/[^0-9]/g,'') >> 0 );
-
-					// (table width) if table is percent of page 
-					// ...
-
-					// (size columns) 1o
-					table.headers.forEach( el => {
-						el.width && h.push(el.width); // - columnSpacing
-					});
-					// (size columns) 2o
-					if(h.length === 0) {
-						h = options.columnsSize;
-					} 
-					// (size columns) 3o
-					if(h.length === 0) {
-						columnWidth = ( w / table.headers.length ); // - columnSpacing // define column width
-						table.headers.forEach( () => h.push(columnWidth) );
-					}
-
-					// Set columnPositions
-					h.reduce((prev, curr, indx) => {
-						p.push(prev >> 0);
-						return prev + curr;
-					},( options.x || this.page.margins.left ));
-
-					// !Set columnSizes
-					h.length && (columnSizes = h);
-					p.length && (columnPositions = p);
-
-					// (table width) 3o - Sum last position + lest header width
-					w = p[p.length-1] + h[h.length-1];
-
-					// !Set this._tableWidth
-					w && ( this._tableWidth = w );
-
-					// Ajust spacing
-					// this._tableWidth = this._tableWidth - (h.length * columnSpacing); 
-
-					this._helpers.logg('columnSizes', h);
-					this._helpers.logg('columnPositions', p);
-
-				};
-
-				calcColumnSizes();
+				this._compute.columnSizes()
 
 				let originalStartY = startY;
 
@@ -252,18 +83,18 @@ class PDFDocumentWithTables extends PDFDocument {
 
 					// calc header height
 					if(this.headerHeight === 0){
-						this.headerHeight = computeRowHeight(table.headers, true);
+						this.headerHeight = this._compute.rowHeight(table.headers, true);
 						this._helpers.logg(this.headerHeight, 'headers');
 					}
 
 					// calc first table line when init table
 					if(firstLineHeight === 0){
 						if(table.datas.length > 0){
-							firstLineHeight = computeRowHeight(table.datas[0], true);
+							firstLineHeight = this._compute.rowHeight(table.datas[0], true);
 							this._helpers.logg(firstLineHeight, 'datas');
 						}
 						if(table.rows.length > 0){
-							firstLineHeight = computeRowHeight(table.rows[0], true);
+							firstLineHeight = this._compute.rowHeight(table.rows[0], true);
 							this._helpers.logg(firstLineHeight, 'rows');
 						}
 					}
@@ -288,8 +119,8 @@ class PDFDocumentWithTables extends PDFDocument {
 					// if has title
 					if (lockAddTitles === false) {
 						// create title and subtitle
-						startY = this._title.create(title, 12, 1, columnSpacing, startX, startY)
-						startY = this._title.create(subtitle, 9, 0.7, columnSpacing, startX, startY)
+						startY = this._title.create(title, 12, 1, this._columnSpacing, startX, startY)
+						startY = this._title.create(subtitle, 9, 0.7, this._columnSpacing, startX, startY)
 						// add space after title
 						if (title || subtitle){
 							startY += 3
@@ -325,7 +156,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						table.headers.forEach( (dataHeader, i) => {
 							let {label, width, renderer, align, valign, headerColor, headerOpacity, headerAlign, headerValign, padding} = dataHeader;
 							// check defination
-							width = width || columnSizes[i];
+							width = width || this._columnSizes[i];
 							align = headerAlign || align || 'left';
 							valign = headerValign || valign || 'top';
 							// force number
@@ -357,20 +188,20 @@ class PDFDocumentWithTables extends PDFDocument {
 							// background header
 							const rectCell = {
 								x: lastPositionX, 
-								y: startY - columnSpacing - (this._rowDistance * 2), 
+								y: startY - this._columnSpacing - (this._rowDistance * 2), 
 								width: width, 
-								height: this.headerHeight + columnSpacing,
+								height: this.headerHeight + this._columnSpacing,
 							};
 							dataHeader.startX = rectCell.x;
 
 							// add background
-							this.addBackground(rectCell, headerColor, headerOpacity);
+							this._helpers.addBackground(rectCell, headerColor, headerOpacity);
 
 							// cell padding
 							cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0);
 
 							// align vertically
-							let topTextToAlignVertically = this._helpers.calcTopTextToAlignVertically.bind(this)(label, width, cellPadding, align, valign, this._rowDistance, columnSpacing, rectCell);
+							let topTextToAlignVertically = this._compute.topTextToAlignVertically.bind(this)(label, width, cellPadding, align, valign, this._rowDistance, this._columnSpacing, rectCell);
 
 							// write
 							this.text(label, 
@@ -392,12 +223,12 @@ class PDFDocumentWithTables extends PDFDocument {
 
 					if(!options.hideHeader) {
 						// Refresh the y coordinate of the bottom of the headers row
-						rowBottomY = Math.max(startY + computeRowHeight(table.headers, true), rowBottomY);
+						rowBottomY = Math.max(startY + this._compute.rowHeight(table.headers, true), rowBottomY);
 						// Separation line on top of headers
-						this._dividers.row(options, 'top', startX, startY - columnSpacing - (this._rowDistance * 2))
+						this._dividers.row(options, 'top', startX, startY - this._columnSpacing - (this._rowDistance * 2))
 						// Separation line between headers and rows
 						this._dividers.row(options, 'header', startX, rowBottomY);
-						originalStartY = startY - columnSpacing - (this._rowDistance * 2);
+						originalStartY = startY - this._columnSpacing - (this._rowDistance * 2);
 					} else {
 						rowBottomY = startY;
 					}
@@ -411,12 +242,12 @@ class PDFDocumentWithTables extends PDFDocument {
 				table.datas.forEach((row, i) => {
 
 					this.datasIndex = i;
-					const rowHeight = computeRowHeight(row, false);
+					const rowHeight = this._compute.rowHeight(row, false);
 					this._helpers.logg(rowHeight);
 
 					// Switch to next page if we cannot go any further because the space is over.
 					// For safety, consider 3 rows margin instead of just one
-					// if (startY + 2 * rowHeight < maxY) startY = rowBottomY + columnSpacing + this._rowDistance; // 0.5 is spacing rows
+					// if (startY + 2 * rowHeight < maxY) startY = rowBottomY + this._columnSpacing + this._rowDistance; // 0.5 is spacing rows
 					// else this.emitter.emit('addPage'); //this.addPage();
 					if(options.useSafelyMarginBottom && this.y + safelyMarginBottom + rowHeight >= maxY && !lockAddPage) {
 						onFirePageAdded(); // this.emitter.emit('addPage'); //this.addPage();    
@@ -424,20 +255,20 @@ class PDFDocumentWithTables extends PDFDocument {
 					}
 
 					// calc position
-					startY = rowBottomY + columnSpacing + this._rowDistance; // 0.5 is spacing rows
+					startY = rowBottomY + this._columnSpacing + this._rowDistance; // 0.5 is spacing rows
 
 					// unlock add page function
 					lockAddPage = false;
 
 					const rectRow = {
 						x: startX, 
-						y: startY - columnSpacing - (this._rowDistance * 2), 
+						y: startY - this._columnSpacing - (this._rowDistance * 2), 
 						width: this._tableWidth - startX, 
-						height: rowHeight + columnSpacing,
+						height: rowHeight + this._columnSpacing,
 					};
 
 					// add background row
-					prepareRowBackground(row, rectRow);
+					this._helpers.prepareRowBackground(row, rectRow);
 
 					lastPositionX = startX; 
 
@@ -447,7 +278,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						let {property, width, renderer, align, valign, padding} = dataHeader;
 
 						// check defination
-						width = width || columnWidth;
+						width = width || this._columnWidth;
 						align = align || 'left';
 
 						// cell padding
@@ -455,9 +286,9 @@ class PDFDocumentWithTables extends PDFDocument {
 
 						const rectCell = {
 							x: lastPositionX,
-							y: startY - columnSpacing - (this._rowDistance * 2),
+							y: startY - this._columnSpacing - (this._rowDistance * 2),
 							width: width,
-							height: rowHeight + columnSpacing,
+							height: rowHeight + this._columnSpacing,
 						}
 
 						// allow the user to override style for rows
@@ -477,14 +308,14 @@ class PDFDocumentWithTables extends PDFDocument {
 
 								// set font style
 								this._helpers.prepareRowOptions(row[property]);
-								prepareRowBackground(row[property], rectCell);
+								this._helpers.prepareRowBackground(row[property], rectCell);
 
 							}
 
 						} else {
 
 							// style column by header
-							prepareRowBackground(table.headers[index], rectCell);
+							this._helpers.prepareRowBackground(table.headers[index], rectCell);
 
 						}
 
@@ -508,7 +339,7 @@ class PDFDocumentWithTables extends PDFDocument {
 						}
 
 						// align vertically
-						let topTextToAlignVertically = this._helpers.calcTopTextToAlignVertically.bind(this)(text, cellPadding, width, align, valign, this._rowDistance, columnSpacing, rectCell);
+						let topTextToAlignVertically = this._compute.topTextToAlignVertically.bind(this)(text, cellPadding, width, align, valign, this._rowDistance, this._columnSpacing, rectCell);
 
 						// write
 						this.text(text, 
@@ -534,7 +365,7 @@ class PDFDocumentWithTables extends PDFDocument {
 					// console.log(this.page.height, rowBottomY, this.y);
 					// text is so big as page (crazy!)
 					if(rowBottomY > this.page.height) {
-						rowBottomY = this.y + columnSpacing + (this._rowDistance * 2);
+						rowBottomY = this.y + this._columnSpacing + (this._rowDistance * 2);
 					}
 
 					// Separation line between rows
@@ -555,12 +386,12 @@ class PDFDocumentWithTables extends PDFDocument {
 				table.rows.forEach((row, i) => {
 
 					this.rowsIndex = i;
-					const rowHeight = computeRowHeight(row, false);
+					const rowHeight = this._compute.rowHeight(row, false);
 					this._helpers.logg(rowHeight);
 
 					// Switch to next page if we cannot go any further because the space is over.
 					// For safety, consider 3 rows margin instead of just one
-					// if (startY + 3 * rowHeight < maxY) startY = rowBottomY + columnSpacing + this._rowDistance; // 0.5 is spacing rows
+					// if (startY + 3 * rowHeight < maxY) startY = rowBottomY + this._columnSpacing + this._rowDistance; // 0.5 is spacing rows
 					// else this.emitter.emit('addPage'); //this.addPage(); 
 					if(options.useSafelyMarginBottom && this.y + safelyMarginBottom + rowHeight >= maxY && !lockAddPage) {
 						onFirePageAdded(); // this.emitter.emit('addPage'); //this.addPage();
@@ -568,21 +399,21 @@ class PDFDocumentWithTables extends PDFDocument {
 					}
 
 					// calc position
-					startY = rowBottomY + columnSpacing + this._rowDistance; // 0.5 is spacing rows
+					startY = rowBottomY + this._columnSpacing + this._rowDistance; // 0.5 is spacing rows
 
 					// unlock add page function
 					lockAddPage = false;
 
 					const rectRow = {
-						x: columnPositions[0], 
+						x: this._columnPositions[0], 
 						// x: startX, 
-						y: startY - columnSpacing - (this._rowDistance * 2), 
+						y: startY - this._columnSpacing - (this._rowDistance * 2), 
 						width: this._tableWidth - startX, 
-						height: rowHeight + columnSpacing,
+						height: rowHeight + this._columnSpacing,
 					}
 
 					// add background
-					// doc.addBackground(rectRow);
+					// this._helpers.addBackground(rectRow);
 
 					lastPositionX = startX; 
 
@@ -592,14 +423,14 @@ class PDFDocumentWithTables extends PDFDocument {
 						let valign = undefined;
 
 						const rectCell = {
-							// x: columnPositions[index],
+							// x: this._columnPositions[index],
 							x: lastPositionX,
-							y: startY - columnSpacing - (this._rowDistance * 2),
-							width: columnSizes[index],
-							height: rowHeight + columnSpacing,
+							y: startY - this._columnSpacing - (this._rowDistance * 2),
+							width: this._columnSizes[index],
+							height: rowHeight + this._columnSpacing,
 						}
 
-						prepareRowBackground(table.headers[index], rectCell);
+						this._helpers.prepareRowBackground(table.headers[index], rectCell);
 
 						// Allow the user to override style for rows
 						prepareRow(row, index, i, rectRow, rectCell);
@@ -616,17 +447,17 @@ class PDFDocumentWithTables extends PDFDocument {
 						cellPadding = this._helpers.prepareCellPadding(table.headers[index].padding || options.padding || 0);
 
 						// align vertically
-						let topTextToAlignVertically = this._helpers.calcTopTextToAlignVertically.bind(this)(cell, cellPadding, columnSizes[index], align, valign, this._rowDistance, columnSpacing, rectCell);
+						let topTextToAlignVertically = this._compute.topTextToAlignVertically.bind(this)(cell, cellPadding, this._columnSizes[index], align, valign, this._rowDistance, this._columnSpacing, rectCell);
 
 						// write
 						this.text(cell, 
 							lastPositionX + (cellPadding.left),
 							startY + topTextToAlignVertically, {
-								width: columnSizes[index] - (cellPadding.left + cellPadding.right),
+								width: this._columnSizes[index] - (cellPadding.left + cellPadding.right),
 								align: align,
 							});
 
-						lastPositionX += columnSizes[index];
+						lastPositionX += this._columnSizes[index];
 
 					});
 
@@ -636,7 +467,7 @@ class PDFDocumentWithTables extends PDFDocument {
 					// console.log(this.page.height, rowBottomY, this.y);
 					// text is so big as page (crazy!)
 					if(rowBottomY > this.page.height) {
-						rowBottomY = this.y + columnSpacing + (this._rowDistance * 2);
+						rowBottomY = this.y + this._columnSpacing + (this._rowDistance * 2);
 					}
 
 					// Separation line between rows
@@ -711,8 +542,7 @@ class PDFDocumentWithTables extends PDFDocument {
 
 		});
 	}
-
 }
 
-module.exports = PDFDocumentWithTables;
-module.exports.default = PDFDocumentWithTables;
+module.exports = PDFDocumentWithTables
+module.exports.default = PDFDocumentWithTables
