@@ -107,20 +107,20 @@ fns.columnSizes = function() {
 	this._columnWidth = _columnWidth
 }
 
-fns.topTextToAlignVertically = function(text, width, cellPadding, align, valign, rowDistance, columnSpacing, rectCell) {
+fns.topTextToAlignVertically = function(text, width, align, valign, rectCell) {
 	if (!valign || valign === 'top') return 0
 	let topTextToAlignVertically = 0
 	const heightText = this.heightOfString(text, {
-		width: width - (cellPadding.left + cellPadding.right),
+		width: width - (this._cellPadding.left + this._cellPadding.right),
 		align: align,
 	})
 	switch (valign) {
 		case 'center':
 		case 'middle':
-			topTextToAlignVertically = rowDistance - columnSpacing + (rectCell.height - heightText) / 2
+			topTextToAlignVertically = this._rowDistance - this._columnSpacing + (rectCell.height - heightText) / 2
 			break
 		case 'bottom':
-			topTextToAlignVertically = rowDistance - columnSpacing + rectCell.height - heightText
+			topTextToAlignVertically = this._rowDistance - this._columnSpacing + rectCell.height - heightText
 			break
 	}
 	return topTextToAlignVertically

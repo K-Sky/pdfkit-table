@@ -130,7 +130,7 @@ fns.add = function() {
 			this._cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0)
 
 			// align vertically
-			let topTextToAlignVertically = this._compute.topTextToAlignVertically.bind(this)(label, width, this._cellPadding, align, valign, this._rowDistance, this._columnSpacing, rectCell)
+			let topTextToAlignVertically = this._compute.topTextToAlignVertically.bind(this)(label, width, align, valign, rectCell)
 
 			// write
 			this.text(label, 
