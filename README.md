@@ -423,6 +423,9 @@ datas: [
 
 ## Changelogs
 
+### 0.1.103
+- Fix the bug that if the width of the headers is not a whole number, the value computed will be incorrect issue.
+
 ### 0.1.102
 - Update the npm install instruction to install this specific package instead.
 - Delete the functions to generate rows. Simple data from rows should be converted to datas instead internally for easier code management.
