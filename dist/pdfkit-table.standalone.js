@@ -45031,7 +45031,7 @@ fns.add = function() {
 			dataHeader.startX = rectCell.x
 
 			// add background
-			this._helpers.addBackground(rectCell, headerColor, headerOpacity)
+			this.addBackground(rectCell, headerColor, headerOpacity)
 
 			// cell padding
 			this._cellPadding = this._helpers.prepareCellPadding(padding || options.padding || 0)
@@ -45092,33 +45092,6 @@ fns.logg = (() =>
 	: function() {}
 )()
 
-/**
-	 * addBackground
-	 * @param {Object} rect
-	 * @param {String} fillColor 
-	 * @param {Number} fillOpacity 
-	 * @param {Function} callback 
-	 */
-fns.addBackground = function({x, y, width, height}, fillColor, fillOpacity, callback) {
-	// validate
-	fillColor || (fillColor = 'grey');
-	fillOpacity || (fillOpacity = 0.1);
-
-	this.save();
-
-	// draw bg
-	this
-		.fill(fillColor)
-	//.stroke(fillColor)
-		.fillOpacity(fillOpacity)
-		.rect( x, y, width, height )
-	//.stroke()
-		.fill();
-
-	this.restore();
-	typeof callback === 'function' && callback(this);
-}
-
 fns.prepareRowBackground = function(row, rect) {
 	// validate
 	if(typeof row !== 'object') return
@@ -45132,7 +45105,7 @@ fns.prepareRowBackground = function(row, rect) {
 	if (row.hasOwnProperty('columnColor')) { // ^0.1.70
 
 		const { columnColor, columnOpacity } = row
-		fill = columnColor;
+		fill = columnColor
 		opac = columnOpacity
 
 	} else if (row.hasOwnProperty('backgroundColor')) { // ~0.1.65 old
@@ -45149,7 +45122,7 @@ fns.prepareRowBackground = function(row, rect) {
 		}
 	}
 
-	fill && this._helpers.addBackground(rect, fill, opac)
+	fill && this.addBackground(rect, fill, opac)
 }
 
 // padding: [10, 10, 10, 10]
@@ -45190,7 +45163,7 @@ fns.prepareRowOptions = function(row) {
 	// validate
 	if (typeof row !== 'object' || !row.hasOwnProperty('options')) return
 
-	const {fontFamily, fontSize, color} = row.options
+	const { fontFamily, fontSize, color } = row.options
 
 	fontFamily && this.font(fontFamily)
 	fontSize && this.fontSize(fontSize)
@@ -45265,6 +45238,33 @@ class PDFDocumentWithTables extends PDFDocument {
 		this._header = helpers.registerFns.bind(this)(header)
 		this._datas = helpers.registerFns.bind(this)(datas)
 		this._renderer = helpers.registerFns.bind(this)(renderer)
+	}
+
+	/**
+	 * addBackground
+	 * @param {Object} rect
+	 * @param {String} fillColor 
+	 * @param {Number} fillOpacity 
+	 * @param {Function} callback 
+	 */
+	addBackground = function({x, y, width, height}, fillColor, fillOpacity, callback) {
+		// validate
+		fillColor || (fillColor = 'grey');
+		fillOpacity || (fillOpacity = 0.1);
+
+		this.save();
+
+		// draw bg
+		this
+			.fill(fillColor)
+		//.stroke(fillColor)
+			.fillOpacity(fillOpacity)
+			.rect( x, y, width, height )
+		//.stroke()
+			.fill();
+
+		this.restore();
+		typeof callback === 'function' && callback(this);
 	}
 
 	/**
