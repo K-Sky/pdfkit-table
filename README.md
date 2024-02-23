@@ -423,6 +423,9 @@ datas: [
 
 ## Changelogs
 
+### 0.1.101
+- Add reference to original repository. Update the source code, issue and bugs for npm package.
+
 ### 0.1.100
 - Update README.md for the modifications that were made in 0.1.99.
 
