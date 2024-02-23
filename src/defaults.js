@@ -13,8 +13,8 @@ fns.parse = function(table, options) {
 
 	if (options.useSafelyMarginBottom === undefined) options.useSafelyMarginBottom = true
 
-	let title            = table.title    ? table.title    : ( options.title    || '' ) 
-	let subtitle         = table.subtitle ? table.subtitle : ( options.subtitle || '' ) 
+	this._tableTitle    = table.title    ? table.title    : ( options.title    || '' ) 
+	this._tableSubtitle = table.subtitle ? table.subtitle : ( options.subtitle || '' ) 
 
 	this._helpers.logg('layout', this.page.layout)
 	this._helpers.logg('size', this.page.size)
@@ -24,51 +24,46 @@ fns.parse = function(table, options) {
 	this.table = table
 	this.options = options
 
-	return { table, options, title, subtitle }
+	return { table, options }
 }
 
 fns.values = function(options) {
 	// const columnIsDefined  = options.columnsSize.length ? true : false;
-	this._columnSpacing    = options.columnSpacing || 3 // 15
-	this._columnSizes      = []
-	this._columnPositions  = [] // 0, 10, 20, 30, 100
-	this._columnWidth      = 0
+	this._columnSpacing     = options.columnSpacing || 3 // 15
+	this._columnSizes       = []
+	this._columnPositions   = [] // 0, 10, 20, 30, 100
+	this._columnWidth       = 0
 
-	this._rowDistance      = 0.5;
-	let cellPadding      = { top: 0, right: 0, bottom: 0, left: 0 } // universal
+	this._rowDistance       = 0.5;
+	this._cellPadding       = { top: 0, right: 0, bottom: 0, left: 0 } // universal
 
-	const prepareHeader    = options.prepareHeader || (() => this.fillColor('black').font("Helvetica-Bold").fontSize(8).fill())
-	const prepareRow       = options.prepareRow || ((row, indexColumn, indexRow, rectRow, rectCell) => this.fillColor('black').font("Helvetica").fontSize(8).fill())
-	//const prepareCell      = options.prepareCell || ((cell, indexColumn, indexRow, indexCell, rectCell) => this.fillColor('black').font("Helvetica").fontSize(8).fill())
+	this._prepareHeader     = options.prepareHeader || (() => this.fillColor('black').font("Helvetica-Bold").fontSize(8).fill())
+	this._prepareRow        = options.prepareRow || ((row, indexColumn, indexRow, rectRow, rectCell) => this.fillColor('black').font("Helvetica").fontSize(8).fill())
+	//const prepareCell       = options.prepareCell || ((cell, indexColumn, indexRow, indexCell, rectCell) => this.fillColor('black').font("Helvetica").fontSize(8).fill())
 
-	this._tableWidth       = 0
-	const maxY             = this.page.height - (this.page.margins.bottom) // this.page.margins.top + 
+	this._tableWidth        = 0
+	this._maxY              = this.page.height - (this.page.margins.bottom) // this.page.margins.top + 
 
-	let startX           = options.x || this.x || this.page.margins.left
-	let startY           = options.y || this.y || this.page.margins.top
+	this._startX            = options.x || this.x || this.page.margins.left
+	this._startY            = options.y || this.y || this.page.margins.top
 
-	let lastPositionX    = 0
-	let rowBottomY       = 0
+	this._lastPositionX     = 0
+	this._rowBottomY        = 0
 
 	//------------ experimental fast variables
-	let titleHeight     = 0
-	this.headerHeight    = 0
-	let firstLineHeight = 0
-	this.datasIndex     = 0
-	this.rowsIndex     = 0
-	let lockAddTitles   = false // add title only once
-	let lockAddPage     = false
-	let lockAddHeader   = false
-	let safelyMarginBottom = this.page.margins.top / 2
+	this._titleHeight       = 0
+	this.headerHeight       = 0
+	this._firstLineHeight   = 0
+	this.datasIndex         = 0
+	this.rowsIndex          = 0
+	this._lockAddTitles     = false // add title only once
+	this._lockAddPage       = false
+	this._lockAddHeader     = false
+	this._safelyMarginBottom = this.page.margins.top / 2
 
 	// reset position to margins.left
 	if (options.x === null || options.x === -1 ){
-		startX = this.page.margins.left;
-	}
-	return {
-		cellPadding, prepareHeader, prepareRow, maxY, startX, startY,
-		lastPositionX, rowBottomY, titleHeight, firstLineHeight, lockAddTitles,
-		lockAddPage, lockAddHeader, safelyMarginBottom
+		this.startX = this.page.margins.left;
 	}
 }
 

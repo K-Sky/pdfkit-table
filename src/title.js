@@ -1,6 +1,6 @@
 const fns = {}
 
-fns.create = function(data, fontSize, opacity, columnSpacing, startX, startY) {
+fns.add = function(data, fontSize, opacity, columnSpacing, startX, startY) {
 	if (!data) return startY
 	typeof data === 'string' && (data = { label: data, fontSize, opacity })
 	data.fontFamily && this.font(data.fontFamily)

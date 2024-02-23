@@ -127,4 +127,22 @@ fns.prepareRowOptions = function(row) {
 	// row.options.hasOwnProperty('color') && this.fillColor(row.options.color)
 }
 
+fns.onFirePageAdded = function() {
+	let { table, options } = this
+	let { _originalStartY, y, _tableWidth } = this
+	table.headers.forEach((dataHeader) => {
+		this._dividers.column(options, dataHeader.startX, _originalStartY, y - _originalStartY)
+	})
+	this._dividers.column(options, _tableWidth, _originalStartY, y - _originalStartY)
+	//startX = this.page.margins.left;
+	this._startY = this.page.margins.top
+	this._rowBottomY = 0
+	this._lockAddPage || this.addPage({
+		layout: this.page.layout,
+		size: this.page.size,
+		margins: this.page.margins,
+	})
+	this._lockAddHeader || this._header.add()
+}
+
 module.exports = fns
