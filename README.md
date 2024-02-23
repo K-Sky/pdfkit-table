@@ -425,6 +425,8 @@ datas: [
 
 ### 0.1.102
 - Update the npm install instruction to install this specific package instead.
+- Delete the functions to generate rows. Simple data from rows should be converted to datas instead internally for easier code management.
+
 
 ### 0.1.101
 - Add reference to original repository. Update the source code, issue and bugs for npm package.

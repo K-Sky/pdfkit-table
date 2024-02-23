@@ -1,11 +1,13 @@
 let fns = {}
 
-fns.add = function() {
-	this.table.datas.forEach(fns.single.bind(this))
+fns.add = function(headers, datas) {
+	datas.forEach((row, i) => {
+		fns.single.bind(this)(headers, row, i)
+	})
 }
 
-fns.single = function(row, i) {
-	let { table, options } = this
+fns.single = function(headers, row, i) {
+	let { options } = this
 
 	this.datasIndex = i
 	const rowHeight = this._compute.rowHeight(row, false)
@@ -39,7 +41,7 @@ fns.single = function(row, i) {
 	this._lastPositionX = this._startX;
 
 	// Print all cells of the current row
-	table.headers.forEach(( dataHeader, index) => {
+	headers.forEach(( dataHeader, index) => {
 
 		let { property, width, renderer, align, valign, padding } = dataHeader
 
@@ -65,7 +67,6 @@ fns.single = function(row, i) {
 
 		// cell object
 		if (typeof text === 'object' ) {
-
 			text = String(text.label) // get label
 			// row[property].hasOwnProperty('options') && this._helpers.prepareRowOptions(row[property]); // set style
 
@@ -78,7 +79,7 @@ fns.single = function(row, i) {
 
 		} else {
 			// style column by header
-			this._helpers.prepareRowBackground(table.headers[index], rectCell)
+			this._helpers.prepareRowBackground(headers[index], rectCell)
 		}
 
 		// bold

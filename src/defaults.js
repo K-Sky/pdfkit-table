@@ -6,8 +6,8 @@ fns.parse = function(table, options) {
 	table || (table = {})
 	options || (options = {})
 
-	this._defaults.table(table, options)
-	this._defaults.options(options)
+	fns.table.bind(this)(table, options)
+	fns.options.bind(this)(options)
 
 	if (!table.headers.length) throw new Error('Headers not defined. Use options: hideHeader to hide.')
 
@@ -63,15 +63,15 @@ fns.values = function(options) {
 
 	// reset position to margins.left
 	if (options.x === null || options.x === -1 ){
-		this.startX = this.page.margins.left;
+		this.startX = this.page.margins.left
 	}
 }
 
 fns.table = function(table, options) {
-	table.headers || (table.headers = []);
-	table.datas || (table.datas = []);
-	table.rows || (table.rows = []);
-	table.options && (options = {...options, ...table.options});
+	table.headers || (table.headers = [])
+	table.datas || (table.datas = [])
+	table.rows || (table.rows = [])
+	table.options && (options = {...options, ...table.options})
 }
 
 fns.options = function(options) {

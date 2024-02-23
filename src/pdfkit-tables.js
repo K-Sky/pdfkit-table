@@ -6,11 +6,11 @@ const PDFDocument = require("pdfkit")
 const helpers = require("./helpers.js")
 const defaults = require("./defaults.js")
 const dividers = require("./dividers.js")
-const calc = require("./compute.js")
+const compute = require("./compute.js")
+const parser = require("./parser.js")
 const title = require("./title.js")
 const header = require("./header.js")
 const datas = require("./datas.js")
-const rows = require("./rows.js")
 const renderer = require("./renderer.js")
 
 class PDFDocumentWithTables extends PDFDocument {
@@ -20,11 +20,11 @@ class PDFDocumentWithTables extends PDFDocument {
 		this._helpers = helpers.registerFns.bind(this)(helpers)
 		this._defaults = helpers.registerFns.bind(this)(defaults)
 		this._dividers = helpers.registerFns.bind(this)(dividers)
-		this._compute = helpers.registerFns.bind(this)(calc)
+		this._compute = helpers.registerFns.bind(this)(compute)
+		this._parser = helpers.registerFns.bind(this)(parser)
 		this._title = helpers.registerFns.bind(this)(title)
 		this._header = helpers.registerFns.bind(this)(header)
 		this._datas = helpers.registerFns.bind(this)(datas)
-		this._rows = helpers.registerFns.bind(this)(rows)
 		this._renderer = helpers.registerFns.bind(this)(renderer)
 	}
 
@@ -56,8 +56,9 @@ class PDFDocumentWithTables extends PDFDocument {
 				this._originalStartY = this._startY
 
 				this._header.add()
-				this._datas.add()
-				this._rows.add()
+
+				let { headers, datas } = this._parser.rowsToDatas()
+				this._datas.add(headers, datas)
 
 				// update position
 				this.x = this._startX
