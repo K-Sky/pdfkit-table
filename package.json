@@ -10,9 +10,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/natancabral/pdfkit-table.git"
+    "url": "git+https://github.com/K-Sky/pdfkit-table.git"
   },
-  "author": "natancabral",
+  "author": "Kenneth Tang",
   "keywords": [
     "javascript",
     "node",
@@ -26,9 +26,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/natancabral/pdfkit-table/issues"
+    "url": "https://github.com/K-Sky/pdfkit-table/issues"
   },
-  "homepage": "https://github.com/natancabral/pdfkit-table#readme",
+  "homepage": "https://github.com/K-Sky/pdfkit-table#readme",
   "dependencies": {
     "pdfkit": "latest"
   },
