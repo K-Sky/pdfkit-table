@@ -9,13 +9,14 @@ fns.parseOptions = function(options) {
 }
 
 fns.column = function(options, x, y, height, lineWidth, opacity, color) {
+	const distance = this._rowDistance * 1.5
 	let dividerOptions = this._dividers._parseDividerOptions(options.divider.vertical, opacity, lineWidth, color)
 	if (!dividerOptions) return;
 	({ opacity, lineWidth, color } = dividerOptions)
 	this.save()
 	this
-		.moveTo(x, y)
-		.lineTo(x, y + height)
+		.moveTo(x, y - distance)
+		.lineTo(x, y + height - distance)
 		.lineWidth(lineWidth)
 		.strokeColor(color)
 		.opacity(opacity)

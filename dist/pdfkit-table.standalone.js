@@ -44633,7 +44633,7 @@ fns.single = function(headers, row, i) {
 	// else this.emitter.emit('addPage'); //this.addPage();
 	if (options.useSafelyMarginBottom && this.y + this._safelyMarginBottom + rowHeight >= this._maxY && !this._lockAddPage) {
 		this._helpers.onFirePageAdded(); // this.emitter.emit('addPage'); //this.addPage();    
-		this._originalStartY = this._startY
+		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 	}
 
 	// calc position
@@ -44861,13 +44861,14 @@ fns.parseOptions = function(options) {
 }
 
 fns.column = function(options, x, y, height, lineWidth, opacity, color) {
+	const distance = this._rowDistance * 1.5
 	let dividerOptions = this._dividers._parseDividerOptions(options.divider.vertical, opacity, lineWidth, color)
 	if (!dividerOptions) return;
 	({ opacity, lineWidth, color } = dividerOptions)
 	this.save()
 	this
-		.moveTo(x, y)
-		.lineTo(x, y + height)
+		.moveTo(x, y - distance)
+		.lineTo(x, y + height - distance)
 		.lineWidth(lineWidth)
 		.strokeColor(color)
 		.opacity(opacity)
@@ -45055,14 +45056,14 @@ fns.add = function() {
 	// set style
 	this._helpers.prepareRowOptions(table.headers)
 
-	if(!options.hideHeader) {
+	if (!options.hideHeader) {
 		// Refresh the y coordinate of the bottom of the headers row
+		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 		this._rowBottomY = Math.max(this._startY + this._compute.rowHeight(table.headers, true), this._rowBottomY)
 		// Separation line on top of headers
-		this._dividers.row(options, 'top', this._startX, this._startY - this._columnSpacing - (this._rowDistance * 2))
+		this._dividers.row(options, 'top', this._startX, this._originalStartY)
 		// Separation line between headers and rows
 		this._dividers.row(options, 'header', this._startX, this._rowBottomY)
-		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 	} else {
 		this._rowBottomY = this._startY
 	}
@@ -45292,6 +45293,7 @@ class PDFDocumentWithTables extends PDFDocument {
 				this._compute.columnSizes()
 
 				this._originalStartY = this._startY
+				this._topY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 
 				this._header.add()
 
@@ -45375,7 +45377,10 @@ fns.add = function(data, fontSize, opacity, columnSpacing, startX, startY) {
 	data.fontFamily && this.font(data.fontFamily)
 	data.label && this.fillColor(data.color || 'black')
 		.fontSize(data.fontSize || fontSize).opacity(data.opacity || opacity).fill()
-		.text(data.label, startX, startY)
+		.text(data.label, startX, startY, {
+			width: this._tableWidth - this._startX,
+			align: data.align || 'left'
+		})
 	startY = this.y + columnSpacing + 2
 	return startY
 }

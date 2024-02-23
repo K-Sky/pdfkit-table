@@ -333,8 +333,8 @@ const table = {
 ```js
 const options = {
   // properties
-  title: "Title", // { label: 'Title', fontSize: 30, color: 'blue', fontFamily: "./fonts/type.ttf" },
-  subtitle: "Subtitle", // { label: 'Subtitle', fontSize: 20, color: 'green', fontFamily: "./fonts/type.ttf" },
+  title: "Title", // { label: 'Title', fontSize: 30, color: 'blue', fontFamily: "./fonts/type.ttf", align: "center" },
+  subtitle: "Subtitle", // { label: 'Subtitle', fontSize: 20, color: 'green', fontFamily: "./fonts/type.ttf", align: "right" },
   width: 500, // {Number} default: undefined // A4 595.28 x 841.89 (portrait) (about width sizes)
   x: 0, // {Number} default: undefined | To reset x position set "x: null"
   y: 0, // {Number} default: undefined | 
@@ -422,6 +422,10 @@ datas: [
 - margin: marginBottom before, marginTop after
 
 ## Changelogs
+
+### 0.1.105
+- Add align property for title and subtitle styling.
+- Fix the vertical divider was missing the row distance variable and therefore has a small misalignment problem.
 
 ### 0.1.104
 - Add standalone JS files under the folder dist. browserify and optionally uglify are used to generate the standalone JS files.

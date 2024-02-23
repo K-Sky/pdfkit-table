@@ -19,7 +19,7 @@ fns.single = function(headers, row, i) {
 	// else this.emitter.emit('addPage'); //this.addPage();
 	if (options.useSafelyMarginBottom && this.y + this._safelyMarginBottom + rowHeight >= this._maxY && !this._lockAddPage) {
 		this._helpers.onFirePageAdded(); // this.emitter.emit('addPage'); //this.addPage();    
-		this._originalStartY = this._startY
+		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 	}
 
 	// calc position

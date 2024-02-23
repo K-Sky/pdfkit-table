@@ -149,14 +149,14 @@ fns.add = function() {
 	// set style
 	this._helpers.prepareRowOptions(table.headers)
 
-	if(!options.hideHeader) {
+	if (!options.hideHeader) {
 		// Refresh the y coordinate of the bottom of the headers row
+		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 		this._rowBottomY = Math.max(this._startY + this._compute.rowHeight(table.headers, true), this._rowBottomY)
 		// Separation line on top of headers
-		this._dividers.row(options, 'top', this._startX, this._startY - this._columnSpacing - (this._rowDistance * 2))
+		this._dividers.row(options, 'top', this._startX, this._originalStartY)
 		// Separation line between headers and rows
 		this._dividers.row(options, 'header', this._startX, this._rowBottomY)
-		this._originalStartY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 	} else {
 		this._rowBottomY = this._startY
 	}

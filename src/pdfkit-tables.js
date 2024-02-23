@@ -54,6 +54,7 @@ class PDFDocumentWithTables extends PDFDocument {
 				this._compute.columnSizes()
 
 				this._originalStartY = this._startY
+				this._topY = this._startY - this._columnSpacing - (this._rowDistance * 2)
 
 				this._header.add()
 
