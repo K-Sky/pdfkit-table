@@ -423,6 +423,9 @@ datas: [
 
 ## Changelogs
 
+### 0.1.104
+- Add standalone JS files under the folder dist. browserify and optionally uglify are used to generate the standalone JS files.
+
 ### 0.1.103
 - Fix the bug that if the width of the headers is not a whole number, the value computed will be incorrect issue.
 
